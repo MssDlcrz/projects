@@ -1,4 +1,4 @@
-FROM node:8-alpine AS dist
+FROM node:15.10-alpine AS dist
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ ADD . /app
 RUN npm run dist
 
 
-FROM node:8-alpine
+FROM node:15.10-alpine
 
 WORKDIR /app
 ADD ./cfg/* /app/cfg/
