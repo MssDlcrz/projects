@@ -1,0 +1,293 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: carbo-test-ui-deployment
+  namespace: "carbo-test"
+  labels:
+    app: carbo-test-ui
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: carbo-test-ui
+  template:
+    metadata:
+      labels:
+        app: carbo-test-ui
+    spec:
+      securityContext:
+        fsGroup: 412 # Group ID of docker group on k8s nodes.
+      containers:
+        - name: carbo-test-ui
+          image: 099588379832.dkr.ecr.us-west-2.amazonaws.com/carbonetes/web-ui:210326h
+          env:
+            - name: DB_DRIVER
+              value: "com.mysql.jdbc.Driver"
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: db-url-no-tracing
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: db-password
+            - name: ANCHORE_ENGINE_HOST
+              value: "http://carbo-test-anchore-engine-api.default.svc.cluster.local:8228"
+            - name: ANCHORE_ENGINE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: anchore-user
+            - name: ANCHORE_ENGINE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: anchore-password
+            - name: CN_AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: cn-aws-access-key
+            - name: CN_AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: cn-aws-secret-key
+            - name: MAIL_SERVER_HOST
+              value: "email-smtp.us-west-2.amazonaws.com"
+            - name: MAIL_SERVER_PORT
+              value: "587"
+            - name: MAIL_SERVER_FROM
+              value: "cloudservices@carbonetes.com"
+            - name: MAIL_SERVER_TO
+              value: "eng@carbonetes.com"
+            - name: MAIL_SERVER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: mail-server-username
+            - name: MAIL_SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: mail-server-password
+            - name: MAIL_SERVER_PROTOCOL
+              value: "smtp"
+            - name: SUPPORT_EMAIL
+              value: "support@carbonetes.com"
+            - name: WEB_API_HOST
+              value: "https://tapi-vulnerability.carbonetes.com"
+            - name: POLICY_API_HOST
+              value: "https://tapi-policy.carbonetes.com"
+            - name: VIRUSANALYZER_API_HOST
+              value: "https://tapi-malware.carbonetes.com"
+            - name: SCA_API_HOST
+              value: "https://tapi-sca.carbonetes.com"
+            - name: VULNERABILITYFEEDS_API_HOST
+              value: "https://tvuln-feeds-api.carbonetes.com"
+            - name: INTEGRATIONS_API_HOST
+              value: "https://tapi-integration.carbonetes.com"
+            - name: COMPREHENSIVE_API_HOST
+              value: "https://tapi-comprehensive.carbonetes.com"
+            - name: LICENSEFINDER_API_HOST
+              value: "https://tapi-license.carbonetes.com"
+            - name: QUARTZ_API_HOST
+              value: "https://tapi-scheduler.carbonetes.com"
+            - name: USERMANAGEMENT_API_HOST
+              value: "https://tapi-user.carbonetes.com"
+            - name: BOM_API_HOST
+              value: "https://tapi-bom.carbonetes.com"
+            - name: WINDOWS_API_HOST
+              value: "https://tapi-windows-analyzer.com"
+            - name: API_VERSION
+              value: "v1"
+            - name: BITBUCKET_CLIENT_ID
+              value: "Lnr3rEn959UuB9AHpx"
+            - name: GITHUB_CLIENT_ID
+              value: "cee8eecee9e182ec2052"
+            - name: SLACK_CLIENT_ID
+              value: "1132967195393.1144401499792"
+            - name: KAFKA_HOST
+              value: "kafka.default.svc.cluster.local:9092"
+            - name: TOPIC_VULN_ANALYSIS_STATUS
+              value: "vuln_analysis_status"
+            - name: TOPIC_VULN_IMAGE_ANALYSIS
+              value: "vuln_image_analysis"
+            - name: TOPIC_VULN_NOTIFICATION
+              value: "vuln_scan_notification"
+            - name: TOPIC_POLICY_NOTIFICATION
+              value: "policy_notification"
+            - name: TOPIC_VIRUS_NOTIFICATION
+              value: "virus_notification"
+            - name: TOPIC_VIRUS_STATUS
+              value: "virus_status"
+            - name: TOPIC_DEPENDENCY_ANALYSIS_REPO
+              value: "dependency_analysis_repo"
+            - name: TOPIC_DEPENDENCY_ANALYSIS_IMAGE
+              value: "dependency_analysis_image"
+            - name: TOPIC_SECRET_SCANS
+              value: "secret_scans"
+            - name: TOPIC_LICENSE_FINDER_ANALYSIS
+              value: "license_finder_analysis"
+            - name: TOPIC_LICENSE_FINDER_LICENSE_APPROVAL
+              value: "license_finder_license_approval"
+            - name: TOPIC_LICENSE_FINDER_DEPENDENCY_APPROVAL
+              value: "license_finder_dependency_approval"
+            - name: TOPIC_LICENSE_FINDER_LICENSES_UPDATE
+              value: "license_finder_licenses_update"
+            - name: TOPIC_COMPREHENSIVE_ANALYSIS_NOTIF
+              value: "comprehensive_analysis_notif"
+            - name: TOPIC_COMPREHENSIVE_ANALYSIS
+              value: "comprehensive_analysis"
+            - name: TOPIC_CA_POLICY_EVALUATION
+              value: "ca_policy_evaluation"
+            - name: TOPIC_LICENSE_FINDER_STATUS
+              value: "license_finder_status"
+            - name: TOPIC_QUARTZ_ANALYSIS_STATUS
+              value: "topic_quartz_analysis_status"
+            - name: TOPIC_QUARTZ_IMAGE_ANALYSIS
+              value: "topic_quartz_image_analysis"
+            - name: TOPIC_COMPREHENSIVE_ANALYSIS_IMAGE
+              value: "comprehensive_analysis_image"
+            - name: TOPIC_PULL_ERROR
+              value: "pull_error"
+            - name: TOPIC_BILL_OF_MATERIALS_ANALYSIS_STATUS
+              value: "bill_of_materials_status"
+            - name: TOPIC_BILL_OF_MATERIALS_ANALYSIS 
+              value: "bill_of_materials_analysis"
+            - name: TOPIC_YAML_ANALYSIS
+              value: "yaml_analysis"
+            - name: TOPIC_YAML_ANALYSIS_STATUS 
+              value: "yaml_analysis_status"
+            - name: X_AMZN_MARKETPLACE_TOKEN
+              value: "x-amzn-marketplace-token"
+            - name: API_INTERNAL_SUBSCRIPTION
+              value: "http://carbo-test-subscription-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_COMPREHENSIVE_ANALYSIS
+              value: "http://carbo-test-comprehensive-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_INTEGRATIONS
+              value: "http://carbo-test-integrations-service.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_SCAN_SCHEDULE
+              value: "http://carbo-test-quartz-service.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_SCA
+              value: "http://carbo-test-sca-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_BOM
+              value: "http://carbo-test-bom-service.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_MALWARE_ANALYSIS
+              value: "http://carbo-test-virusanalyzer-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_LICENSE_FINDER
+              value: "http://carbo-test-licensefinder-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_WINDOWS_VULNERABILITY
+              value: "http://carbo-test-vuln-windows-service.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_POLICY
+              value: "http://carbo-test-policyengine-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_USER_MANAGEMENT
+              value: "http://carbo-test-usermanagement-service-cip.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_VULN_API
+              value: "http://carbo-test-api-service.carbo-test.svc.cluster.local"
+            - name: API_INTERNAL_YAML
+              value: "http://carbo-test-iac-service.carbo-test.svc.cluster.local"
+            - name: YAML_API_HOST
+              value: "http://carbo-test-iac-service.carbo-test.svc.cluster.local"              
+            # REDIS
+            - name: REDIS_HOST
+              value: "carbo-redis-server-master.default.svc.cluster.local"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              value: "LEivgZcg8S"
+            - name: APP_VERSION
+              value: "210223a"
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: google-client-id
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: test-secret
+                  key: google-client-secret
+            - name: GOOGLE_REDIRECT_URI
+              value: "https://tconsole.carbonetes.com/google-signin/auth"
+            - name: GOOGLE_TOKEN_URL
+              value: "https://oauth2.googleapis.com/token"
+            - name: GOOGLE_USER_INFO_URL
+              value: "https://www.googleapis.com/oauth2/v2/userinfo"
+            - name: GOOGLE_ACCOUNT_URL
+              value: "https://accounts.google.com/signin/oauth/oauthchooseaccount"
+            - name: CDN_HOST
+              value: "https://tcdn.carbonetes.com"
+            - name: CN_AWS_BUCKET
+              value: "cdn.tst.carbonetes.com"
+            - name: SIGNIN_FAILURE_URL
+              value: "https://tconsole.carbonetes.com/signin?error"
+            - name: FREE_TIER
+              value: "Free_Tier"
+            - name: SESSION_TIMEOUT
+              value: "10800000"
+          ports:
+            - name: http
+              containerPort: 80
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 80
+            # failureThreshold: 25
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 80
+            # failureThreshold: 25
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+          lifecycle:
+            # postStart:
+            #   exec:
+            #     command: ["/bin/sh", "-c", "mkdir post-exec"]
+            preStop:
+              exec:
+                command:
+                  [
+                    "/bin/sh",
+                    "-c",
+                    "java -jar /usr/share/post-exec/target/lifecycle-hook.jar;",
+                  ]
+          volumeMounts:
+            - name: lifecycle-storage
+              mountPath: /usr/share/post-exec
+          resources:
+            limits:
+              cpu: 2
+              memory: 3G
+            requests:
+              cpu: 1
+              memory: 1G
+      volumes:
+        - name: lifecycle-storage
+          persistentVolumeClaim:
+            claimName: efs-lifecycle-claim
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: carbo-test-ui
+              topologyKey: kubernetes.io/hostname
